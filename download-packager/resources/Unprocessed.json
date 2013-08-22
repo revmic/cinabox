@@ -1,0 +1,13 @@
+{"definition": {
+    "outputName": "${subject}_3T_${prefix}_unproc.zip",
+    "nestedPath": "unprocessed/3T",
+    "packageOffset": "RESOURCES",
+    "stems": ["3T"],
+    "paths": ["${fMRIName}/*.nii.gz",
+        "${fMRIName}/*.bval",
+        "${fMRIName}/*.bvec",
+        "${fMRIName}/LINKED_DATA/PHYSIO/*.txt",
+        "${fMRIName}/LINKED_DATA/EPRIME/*.txt",
+        "${fMRIName}/LINKED_DATA/EPRIME/EVs/*.txt"
+    ]
+}}

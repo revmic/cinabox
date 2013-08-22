@@ -1,0 +1,11 @@
+{"definition": {
+    "outputName": "${subject}_3T_Diffusion_preproc.zip",
+    "packageOffset": "RESOURCES/Diffusion_preproc",
+    "stems": ["3T"],
+    "paths": ["T1w/Diffusion/bvals",
+        "T1w/Diffusion/bvecs",
+        "T1w/Diffusion/data.nii.gz",
+        "T1w/Diffusion/nodif_brain_mask.nii.gz",
+        "T1w/Diffusion/grad_dev.nii.gz",
+	"T1w/T1w_acpc_dc_restore_1.25.nii.gz"]
+}}

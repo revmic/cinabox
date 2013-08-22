@@ -1,0 +1,7 @@
+{"definition": {
+    "outputName": "${subject}_3T_Structural_unproc.zip",
+    "nestedPath": "unprocessed/3T",
+    "packageOffset": "RESOURCES",
+    "stems": ["3T"],
+    "paths": ["${fMRIName}/*.nii.gz"]
+}}

@@ -1,0 +1,359 @@
+umount: /dev/sdc1: not found
+umount: /dev/sdf1: not found
+umount: /dev/sdd1: not found
+umount: /dev/sdb1: not found
+umount: /dev/sdh1: not found
+umount: /dev/sde1: not found
+umount: /dev/sdg1: not found
+umount: /dev/sda1: not found
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/atexit.py", line 24, in _run_exitfuncs
+Process sde:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Process sdf:
+Traceback (most recent call last):
+Process sdg:
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Process sdc:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Process sdd:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Process sda:
+Process sdb:
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+Process sdh:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 56, in clone_worker
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sde-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sde HCP-Q1-Reproc
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 56, in clone_worker
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+    partition(device)
+  File "clonecinab_working.py", line 56, in clone_worker
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdg-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdg HCP-Q1-Reproc
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdf-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdf HCP-Q1-Reproc
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 56, in clone_worker
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdc-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdc HCP-Q1-Reproc
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 56, in clone_worker
+    self.run()
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    self._target(*self._args, **self._kwargs)
+    self._target(*self._args, **self._kwargs)
+    log_helper(proc)
+  File "clonecinab_working.py", line 56, in clone_worker
+  File "clonecinab_working.py", line 185, in log_helper
+  File "clonecinab_working.py", line 56, in clone_worker
+    line = process.stdout.readline()
+KeyboardInterrupt
+    partition(device)
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdd-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdd HCP-Q1-Reproc
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdb-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdb HCP-Q1-Reproc
+    line = process.stdout.readline()
+KeyboardInterrupt
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sda-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sda HCP-Q1-Reproc
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 56, in clone_worker
+    partition(device)
+  File "clonecinab_working.py", line 68, in partition
+    log_helper(proc)
+  File "clonecinab_working.py", line 185, in log_helper
+    line = process.stdout.readline()
+KeyboardInterrupt
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdh-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdh HCP-Q1-Reproc
+    func(*targs, **kargs)
+  File "/usr/lib64/python2.6/multiprocessing/util.py", line 269, in _exit_function
+    p.join()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 119, in join
+    res = self._popen.wait(timeout)
+  File "/usr/lib64/python2.6/multiprocessing/forking.py", line 122, in wait
+    return self.poll(0)
+  File "/usr/lib64/python2.6/multiprocessing/forking.py", line 107, in poll
+    pid, sts = os.waitpid(self.pid, flag)
+KeyboardInterrupt
+Error in sys.exitfunc:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "/usr/lib64/python2.6/multiprocessing/util.py", line 269, in _exit_function
+    p.join()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 119, in join
+    res = self._popen.wait(timeout)
+  File "/usr/lib64/python2.6/multiprocessing/forking.py", line 122, in wait
+    return self.poll(0)
+  File "/usr/lib64/python2.6/multiprocessing/forking.py", line 107, in poll
+    pid, sts = os.waitpid(self.pid, flag)
+KeyboardInterrupt
+umount: /dev/sdb1: not mounted
+umount: /dev/sdc1: not mounted
+umount: /dev/sdh1: not mounted
+umount: /dev/sdf1: not mounted
+umount: /dev/sdg1: not mounted
+umount: /dev/sde1: not mounted
+umount: /dev/sda1: not mounted
+umount: /dev/sdd1: not mounted
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdg-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdg HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sda-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sda HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdd-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdd HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdc-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdc HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdb-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdb HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdf-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdf HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sde-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sde HCP-Q1-Reproc
+/usr/local/bin/clone_cinab/logs/2013-08-19/cinab-sdh-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdh HCP-Q1-Reproc
+umount: /dev/sdd1: not found
+umount: /dev/sdi1: not found
+umount: /dev/sdc1: not found
+umount: /dev/sdb1: not found
+umount: /dev/sdk1: not found
+umount: /dev/sdh1: not found
+umount: /dev/sdm1: not found
+umount: /dev/sdg1: not found
+umount: /dev/sde1: not found
+umount: /dev/sdf1: not found
+umount: /dev/sdj1: not found
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+Process sdk:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdk-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdk HCP-Q1-Reproc
+Process sdd:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdd-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdd HCP-Q1-Reproc
+Process sdb:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdb-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdb HCP-Q1-Reproc
+Process sdh:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdh-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdh HCP-Q1-Reproc
+Process sdf:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdf-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdf HCP-Q1-Reproc
+Process sdc:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdc-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdc HCP-Q1-Reproc
+Process sdi:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdi-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdi HCP-Q1-Reproc
+Process sdm:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdm-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdm HCP-Q1-Reproc
+Process sde:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sde-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sde HCP-Q1-Reproc
+Process sdg:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdg-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdg HCP-Q1-Reproc
+Process sdj:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 232, in _bootstrap
+    self.run()
+  File "/usr/lib64/python2.6/multiprocessing/process.py", line 88, in run
+    self._target(*self._args, **self._kwargs)
+  File "clonecinab_working.py", line 58, in clone_worker
+    verify(device)
+  File "clonecinab_working.py", line 101, in verify
+    os.chdir(VERIFY_SCRIPT_DIR)
+OSError: [Errno 13] Permission denied: '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+/usr/local/bin/clone_cinab/logs/2013-08-20/cinab-sdj-nrglab11.log
+sh /usr/local/bin/clone_cinab/partition.sh sdj HCP-Q1-Reproc

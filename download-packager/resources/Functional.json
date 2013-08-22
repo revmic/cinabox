@@ -1,0 +1,21 @@
+{"definition": {
+    "outputName": "${subject}_3T_${prefix}_preproc.zip",
+    "packageOffset": "RESOURCES/${fMRIName}_preproc",
+    "stems": ["3T"],
+    "paths": ["MNINonLinear/Results/${fMRIName}/${fMRIName}.nii.gz",
+        "MNINonLinear/Results/${fMRIName}/${fMRIName}_Atlas.dtseries.nii",
+        "MNINonLinear/Results/${fMRIName}/*_TAB.txt",
+        "MNINonLinear/Results/${fMRIName}/*_Physio_*.txt",
+        "MNINonLinear/Results/${fMRIName}/*.fsf",
+        "MNINonLinear/Results/${fMRIName}/prepare_level2_feat_analysis.sh",
+        "MNINonLinear/Results/${fMRIName}/EVs/*.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_Regressors.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_Regressors_dt.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_AbsoluteRMS.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_AbsoluteRMS_mean.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_RelativeRMS.txt",
+        "MNINonLinear/Results/${fMRIName}/Movement_RelativeRMS_mean.txt",
+        "MNINonLinear/Results/${fMRIName}/${fMRIName}_Jacobian.nii.gz",
+        "MNINonLinear/Results/${fMRIName}/${fMRIName}_SBRef.nii.gz",
+        "MNINonLinear/Results/${fMRIName}/RibbonVolumeToSurfaceMapping/goodvoxels.nii.gz"]
+}}
