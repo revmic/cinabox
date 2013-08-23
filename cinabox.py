@@ -2,7 +2,6 @@
 import os
 import sys
 import time
-import errno
 #import setup
 import socket
 import logging
@@ -12,14 +11,11 @@ import multiprocessing as mp
 from optparse import OptionParser
 from datetime import datetime, timedelta
 
-"""
-## devices.list contents ##
-sdb
-sdc
-sdd
-"""
 ## TO-DO
-#    Log elapsed times
+#  * Log elapsed times
+#  * Use Wustl email server
+#  * Subject count
+#  * Verify targets are same size as source
 
 ## OPTION PARSER ##
 parser = OptionParser(usage='\n(Multiple destinations from local source with device label):'+
@@ -39,14 +35,15 @@ parser.add_option("-v", "--verify", action="store_true", dest="verify", default=
 (opts, args) = parser.parse_args()
 
 ## HANDLE PROVIDED OPTIONS ##
-if not (opts.source and opts.targets):
+if not ((opts.source and opts.targets) or (opts.verify and opts.targets)):
     parser.print_help()
     sys.exit(-1)
 
-if not opts.device_label:
+if not (opts.device_label or opts.verify):
     response = ''
     while response is not 'y' or response is not 'n':
-        response = raw_input("No target device label provided. \'HCP-Cinab\' will be used.\nContinue? (y/n): ")
+        response = raw_input("No target device label provided. "+ \
+                             "\'HCP-Cinab\' will be used.\nContinue? (y/n): ")
         if response is 'y':
             break
         elif response is 'n':
@@ -67,15 +64,17 @@ LOGDIR = os.path.join(SCRIPTDIR, 'logs')
 #      "== Drive label " + opts.source + " on machine " + socket.gethostname() + '\n' + \
 #      "== " + str(datetime.now()) + '\n'
 """
-VERIFY_SCRIPT_DIR = '/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/'
+VERIFY_SCRIPT_DIR = os.getcwd()
 PACKAGER_HOME = os.path.join(VERIFY_SCRIPT_DIR, 'download-packager')
 ############
 
 def create_log(drive):
     global logger
-    sp.call(['mkdir', '-p', LOGDIR + str(datetime.now()).split()[0].replace('-', '')])
-    logfile = os.path.join(LOGDIR, str(datetime.now()).split()[0]+'/cinab-' + \
-               drive + '-' + socket.gethostname().split('.')[0]+'.log')
+    print LOGDIR
+    datedir = str(datetime.now()).split()[0].replace('-', '')
+    sp.call(['mkdir', '-p', os.path.join(LOGDIR, datedir)])
+    logfile = os.path.join(LOGDIR, datedir +'/cinab-' + drive + '-' + \
+                           socket.gethostname().split('.')[0]+'.log')
     logger = logging.getLogger('cinab')
     handler = logging.FileHandler(logfile)
     logger.addHandler(handler)
@@ -90,9 +89,8 @@ def partition(drive):
     logger.info("== " + str(datetime.now()))
     
     if 'linux' in sys.platform:
-        print 'sh /usr/local/bin/clone_cinab/partlinux.sh ' + drive + ' ' + opts.device_label
-        proc = sp.Popen(['sh', '/usr/local/bin/clone_cinab/partlinux.sh', 
-                          drive, opts.device_label], stdout=sp.PIPE)
+        print 'sh partlinux.sh ' + drive + ' ' + opts.device_label
+        proc = sp.Popen(['sh', 'partlinux.sh', drive, opts.device_label], stdout=sp.PIPE)
     elif 'darwin' in sys.platform:
         print 'Running on Mac OS'
         # proc = sp.Popen(['sh', '/usr/local/bin/clone_cinab/partmac.sh', drive, device_label], stdout=sp.PIPE)
@@ -149,8 +147,7 @@ def verify(drive):
 
     logger.info('\n* Starting verification process --')
     logger.info('Start time - ' + str(datetime.now()))
-    proc = sp.Popen(['/data/hcpdb/ftp/staging.mdh/OpenAccess/packaging-scripts/PackageQ2/PackageVerifier.sh', \
-                     '/media/'+drive], stdout=sp.PIPE)
+    proc = sp.Popen(['./PackageVerifier.sh', '/media/'+drive], stdout=sp.PIPE)
     log_helper(proc)
 
     print "PackageVerifier return code: " + str(proc.returncode)
@@ -235,18 +232,19 @@ def build_message(total_time):
 
 
 def clone_worker(device):
-    #create_log(device)
+    create_log(device)
     if opts.verify:
         print "VERIFY only"
-        #verify(device)
+        verify(device)
     else:
-        if not opts.update:
+        if opts.update:
             print "UPDATING the targets"
-            #partition(device)
-        #rsync(device)
-        #verify(device)
-        print "do work on " + device
-        time.sleep(3)
+        else:
+            partition(device)
+        rsync(device)
+        verify(device)
+        #print "do work on " + device
+        #time.sleep(3)
 
 if __name__ == "__main__":
     get_devices()
