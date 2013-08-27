@@ -1,1 +1,7 @@
 mke2fs 1.41.12 (17-May-2010)
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130823/cinab-sda-nrglab11.log
+sh partlinux.sh sda TEST
+Rsync return code: None
+PackageVerifier return code: None
+Elapsed time: 8:04:49
