@@ -9,6 +9,7 @@ import smtplib
 import subprocess as sp
 import multiprocessing as mp
 from optparse import OptionParser
+from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 ## TO-DO
@@ -54,7 +55,6 @@ if not (opts.device_label or opts.verify):
 ## GLOBALS ##
 start = time.time()
 startdate = str(datetime.now()).split('.')[0]
-logdir = '/usr/local/bin/clone_cinab/logs/'
 sub_count = 0
 targets = []
 SCRIPTDIR = os.getcwd()
@@ -154,23 +154,17 @@ def verify(drive):
     if proc.returncode > 0:
         logger.info("++ Some packages failed verification\nSee details below")
     else:
-        logger.info("== Verification completed successfully")
+        logger.info("== Verification process complete")
 
 
-def email(message):
-    SMTP_SERVER = 'smtp.gmail.com'
-    SMTP_PORT = 587
-    recipients = ['hilemanm@mir.wustl.edu']
-    sender = 'mhilema@gmail.com'
-    subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
-    headers = ["From: " + sender,"Subject: " + subject,"To: hilemanm@mir.wustl.edu"]
-    headers = "\r\n".join(headers)
-    session = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    session.ehlo()
-    session.starttls()
-    session.ehlo
-    session.login(sender, '8qar9wor')
-    session.sendmail(sender, recipients, headers+"\r\n\r\n"+message)
+def email(subject, recipients, sender, message):
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+
+    session = smtplib.SMTP('mail.nrg.wustl.edu')
+    session.sendmail(sender, [recipients], msg.as_string())
     session.quit()
 
 
@@ -220,12 +214,12 @@ def log_helper(process):
 
 
 def build_message(total_time):
-    msg = "Cloning process complete for "+ str(targets.__len__())+ \
-          " drives on " + sys.platform + " platform."
+    msg = "Cloning process complete for "+ str(targets.__len__())+" "+ \
+          opts.device_label + " drives on " + sys.platform + " platform."
     msg += "\n\nStarted on: "+ startdate
     msg += "\nCompleted: "+ str(datetime.now()).split('.')[0]
     msg += "\nElapsed: " + total_time
-    msg += "\n\nCheck the logs for details at "+ logdir + " on "+socket.gethostname()
+    msg += "\n\nCheck the logs for details at "+ LOGDIR  + " on "+socket.gethostname()
     return msg
 
 ##############################
@@ -243,8 +237,6 @@ def clone_worker(device):
             partition(device)
         rsync(device)
         verify(device)
-        #print "do work on " + device
-        #time.sleep(3)
 
 if __name__ == "__main__":
     get_devices()
@@ -258,10 +250,13 @@ if __name__ == "__main__":
         
     for p in processes:
         p.join()
-    
     total_time = str(timedelta(seconds=time.time()-start)).split('.')[0]
-    m = build_message(total_time)
-    email(m)
+    message = build_message(total_time)
+    recipients = ['hilemanm@mir.wustl.edu', 'moore.c@wustl.edu', 
+                  'clere@mir.wustl.edu', 'hortonw@mir.wustl.edu']
+    sender = 'cinab@nrg.wustl.edu'
+    subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
+    email(subject, recipients, sender, message)
     print "Elapsed time: " + str(total_time)
 
     #logger.info("== Process completed - " + str(datetime.now()))

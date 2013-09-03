@@ -5,3 +5,71 @@ sh partlinux.sh sda TEST
 Rsync return code: None
 PackageVerifier return code: None
 Elapsed time: 8:04:49
+umount: /dev/sdh1: not found
+umount: /dev/sde1: not found
+umount: /dev/sdg1: not found
+umount: /dev/sdd1: not found
+umount: /dev/sdb1: not found
+umount: /dev/sda1: not found
+umount: /dev/sdf1: not found
+umount: /dev/sdc1: not found
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+mke2fs 1.41.12 (17-May-2010)
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdf-nrglab11.log
+sh partlinux.sh sdf HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sde-nrglab11.log
+sh partlinux.sh sde HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdd-nrglab11.log
+sh partlinux.sh sdd HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdc-nrglab11.log
+sh partlinux.sh sdc HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdg-nrglab11.log
+sh partlinux.sh sdg HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdb-nrglab11.log
+sh partlinux.sh sdb HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sdh-nrglab11.log
+sh partlinux.sh sdh HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130827/cinab-sda-nrglab11.log
+sh partlinux.sh sda HCP-Q2
+Rsync return code: None
+PackageVerifier return code: None
+Elapsed time: 11:31:37
+mke2fs 1.41.12 (17-May-2010)
+/usr/local/bin/cinabox/logs
+/usr/local/bin/cinabox/logs/20130830/cinab-sdc-nrglab11.log
+sh partlinux.sh sdc EMAILTEST
+Rsync return code: None
+PackageVerifier return code: None
+Elapsed time: 0:16:31
+Traceback (most recent call last):
+  File "cinabox.py", line 279, in <module>
+    email(subject, recipients, sender, message)
+TypeError: email() takes exactly 1 argument (4 given)
