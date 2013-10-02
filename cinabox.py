@@ -2,7 +2,6 @@
 import os
 import sys
 import time
-#import setup
 import socket
 import logging
 import smtplib
@@ -14,7 +13,6 @@ from datetime import datetime, timedelta
 
 ## TO-DO
 #  * Log elapsed times
-#  * Use Wustl email server
 #  * Subject count
 #  * Verify targets are same size as source
 
@@ -70,7 +68,6 @@ PACKAGER_HOME = os.path.join(VERIFY_SCRIPT_DIR, 'download-packager')
 
 def create_log(drive):
     global logger
-    print LOGDIR
     datedir = str(datetime.now()).split()[0].replace('-', '')
     sp.call(['mkdir', '-p', os.path.join(LOGDIR, datedir)])
     logfile = os.path.join(LOGDIR, datedir +'/cinab-' + drive + '-' + \
@@ -79,7 +76,6 @@ def create_log(drive):
     handler = logging.FileHandler(logfile)
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
-    print logfile
 
 def partition(drive):
     if not opts.device_label:
@@ -100,7 +96,7 @@ def partition(drive):
         # proc = sp.Popen(['sh', '/usr/local/bin/clone_cinab/partwin.bin', drive, device_label], stdout=sp.PIPE)
         exit(-1)
     else:
-        print 'Unknown operating system'
+        print 'Unknown operating system: ' + sys.platform
         exit(-1)
         
     log_helper(proc)
@@ -173,20 +169,21 @@ def email(subject, recipients, sender, message):
 ############################
 
 def count_subjects():
+    global sub_count
 
     if opts.subject_list:
         try:
             f = open(opts.subject_list)
         except:
-            print "exception opening subject list file"
+            print "Exception opening subject list file. Make sure it exists and you have permission."
+            exit(-1)
 
-        global sub_count
         for line in f.readlines():
             sub_count += 1
     else:
-        # count the numbered, top-level dirs on destination
-        pass
-
+        # Count the number of directories on the top level of source disk
+        sub_count = os.listdir(opts.source).__len__()
+        
 
 def get_devices():
     try:
@@ -250,6 +247,7 @@ if __name__ == "__main__":
         
     for p in processes:
         p.join()
+ 
     total_time = str(timedelta(seconds=time.time()-start)).split('.')[0]
     message = build_message(total_time)
     recipients = ['hilemanm@mir.wustl.edu', 'moore.c@wustl.edu', 
