@@ -12,9 +12,9 @@ from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 ## TO-DO
-#  * Log elapsed times
-#  * Subject count
-#  * Verify targets are same size as source
+#  * Log elapsed times for each device
+#  * Verify targets are same size as source (if cloning from disk)
+#  * Pull email recipient list out as config file
 
 ## OPTION PARSER ##
 parser = OptionParser(usage='\n(Multiple destinations from local source with device label):'+
@@ -27,14 +27,16 @@ parser.add_option("-S", "--subject-list", action="store", type="string", dest="s
     help='File containing list of subjects to copy from source.\nUsed by rsync as --files-from option.')
 parser.add_option("-l", "--device-label", action="store", type="string", dest="device_label",
     help='Label given to all target devices.')
+parser.add_option("-n", "--notify", action="store_true", dest="notify", default=False,
+    help='Turns on email notification when used.')
 parser.add_option("-u", "--update", action="store_true", dest="update", default=False, 
     help='Update existing drive instead of rewriting.')
 parser.add_option("-v", "--verify", action="store_true", dest="verify", default=False,
     help='Verify only. Useful for drive recycling.')
 (opts, args) = parser.parse_args()
 
-## HANDLE PROVIDED OPTIONS ##
-if not ((opts.source and opts.targets) or (opts.verify and opts.targets)):
+## HANDLE OPTIONS ##
+if not ((opts.source or opts.verify) and opts.targets):
     parser.print_help()
     sys.exit(-1)
 
@@ -57,11 +59,6 @@ sub_count = 0
 targets = []
 SCRIPTDIR = os.getcwd()
 LOGDIR = os.path.join(SCRIPTDIR, 'logs')
-"""
-#msg = "== Connectome-in-a-Box drive creation report for: \n" + \
-#      "== Drive label " + opts.source + " on machine " + socket.gethostname() + '\n' + \
-#      "== " + str(datetime.now()) + '\n'
-"""
 VERIFY_SCRIPT_DIR = os.getcwd()
 PACKAGER_HOME = os.path.join(VERIFY_SCRIPT_DIR, 'download-packager')
 ############
@@ -109,17 +106,21 @@ def rsync(drive):
     logger.info("== " + str(datetime.now()))
     logger.info(str(sub_count) + " subjects to rsync")
 
-    if 'linux' in sys.platform or 'darwin' in sys.platform:        
+    if 'linux' in sys.platform or 'darwin' in sys.platform:
+        # If the source directory is pulling from hcpdb/packages,
+        # change group of executing user to hcp_open
+        if 'hcpdb' in opts.source:
+            os.setgid(60026)
         if opts.subject_list:
-            proc = sp.Popen(['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list,
-                             opts.source, '/media/'+drive], stdout=sp.PIPE)
+            proc = sp.Popen(['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list, 
+                              opts.source, '/media/'+drive], stdout=sp.PIPE)
         else:
             proc = sp.Popen(['rsync', '-avh', opts.source, '/media/'+drive], stdout=sp.PIPE)
     elif 'win' in sys.platform:
         print "WINDOWS"
         # proc = sp.Popen(Some windows copy process)
     else:
-        'Unknown operating system'
+        'Unknown operating system: ' + sys.platform
         exit(-1)
         
     logger.info('== Launching Rsync:')
@@ -131,11 +132,16 @@ def rsync(drive):
     if proc.returncode > 0:
         logger.info("++ Something happened with rsync\nReturn code "+ proc.returncode)
         msg = "\n++ Rsync process failed."
-        email(msg)
+        #email(msg)
         exit(-1)
     else:
-        logger.info('== Rsync subprocess completed\n\n')
+        logger.info('== Rsync subprocess completed')
 
+    # Set permissions
+    # chown -R root:root sda
+    # chmod -R 664 sda
+    # chmod -R +X sda
+    # find sda -name "*.sh" | xargs chmod +x
 
 def verify(drive):
     verify_start = time.time()
@@ -152,7 +158,6 @@ def verify(drive):
     else:
         logger.info("== Verification process complete")
 
-
 def email(subject, recipients, sender, message):
     msg = MIMEText(message)
     msg['Subject'] = subject
@@ -160,7 +165,7 @@ def email(subject, recipients, sender, message):
     msg['To'] = ', '.join(recipients)
 
     session = smtplib.SMTP('mail.nrg.wustl.edu')
-    session.sendmail(sender, [recipients], msg.as_string())
+    session.sendmail(sender, recipients, msg.as_string())
     session.quit()
 
 
@@ -184,7 +189,6 @@ def count_subjects():
         # Count the number of directories on the top level of source disk
         sub_count = os.listdir(opts.source).__len__()
         
-
 def get_devices():
     try:
         f = open(opts.targets)
@@ -200,7 +204,6 @@ def get_devices():
         print "device list is empty"
         exit(-1)
 
-
 def log_helper(process):
     while True:
         line = process.stdout.readline()
@@ -208,7 +211,6 @@ def log_helper(process):
             break
         line = line[0:-1] # get rid of extra newline char
         logger.info(line)
-
 
 def build_message(total_time):
     msg = "Cloning process complete for "+ str(targets.__len__())+" "+ \
@@ -220,7 +222,6 @@ def build_message(total_time):
     return msg
 
 ##############################
-
 
 def clone_worker(device):
     create_log(device)
@@ -238,23 +239,26 @@ def clone_worker(device):
 if __name__ == "__main__":
     get_devices()
     count_subjects()
-
+    
     processes = []
     for dev in targets:
         p = mp.Process(name=dev, target=clone_worker, args=(dev,))
         processes.append(p)
         p.start()
-        
+
     for p in processes:
         p.join()
- 
+
     total_time = str(timedelta(seconds=time.time()-start)).split('.')[0]
-    message = build_message(total_time)
-    recipients = ['hilemanm@mir.wustl.edu', 'moore.c@wustl.edu', 
-                  'clere@mir.wustl.edu', 'hortonw@mir.wustl.edu']
-    sender = 'cinab@nrg.wustl.edu'
-    subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
-    email(subject, recipients, sender, message)
+
+    if opts.notify:
+        message = build_message(total_time)
+        recipients = ['hilemanm@mir.wustl.edu', 'moore.c@wustl.edu', 
+                      'clere@mir.wustl.edu', 'hortonw@mir.wustl.edu']
+        sender = 'cinab@nrg.wustl.edu'
+        subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
+        email(subject, recipients, sender, message)
+
     print "Elapsed time: " + str(total_time)
 
     #logger.info("== Process completed - " + str(datetime.now()))
