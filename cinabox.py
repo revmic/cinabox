@@ -11,7 +11,7 @@ from optparse import OptionParser
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
-## TO-DO
+## TODO
 #  * Log elapsed times for each device
 #  * Verify targets are same size as source (if cloning from disk)
 #  * Pull email recipient list out as config file
@@ -36,24 +36,21 @@ parser.add_option("-v", "--verify", action="store_true", dest="verify", default=
 (opts, args) = parser.parse_args()
 
 ## HANDLE OPTIONS ##
-if not ((opts.source or opts.verify) and opts.targets):
+if not (opts.targets and (opts.source or opts.verify)):
     parser.print_help()
     sys.exit(-1)
 
-if not (opts.device_label or opts.verify):
+if not (opts.device_label or opts.verify or opts.update):
     response = ''
     while response is not 'y' or response is not 'n':
         response = raw_input("No target device label provided. "+ \
                              "\'HCP-Cinab\' will be used.\nContinue? (y/n): ")
-        if response is 'y':
-            break
-        elif response is 'n':
-            exit(0)
-        else:
-            print "Not a proper response. Type y/n."
+        if response is 'y': break
+        elif response is 'n': exit(0)
+        else: print "Not a proper response. Type y/n."
 
 ## GLOBALS ##
-start = time.time()
+starttime = time.time()
 startdate = str(datetime.now()).split('.')[0]
 sub_count = 0
 targets = []
@@ -80,6 +77,7 @@ def partition(drive):
 
     logger.info("\n* Formatting and partitioning drives")
     logger.info("== " + str(datetime.now()))
+    print "Partitioning " + drive
     
     if 'linux' in sys.platform:
         print 'sh partlinux.sh ' + drive + ' ' + opts.device_label
@@ -101,7 +99,7 @@ def partition(drive):
 
 def rsync(drive):
     logger.info("* Rsync process started for "+drive)
-
+    print "Starting rsync on " + drive
     logger.info("\n* Cloning /dev/%s from source %s on %s" % (drive, opts.source, socket.gethostname()))
     logger.info("== " + str(datetime.now()))
     logger.info(str(sub_count) + " subjects to rsync")
@@ -137,6 +135,20 @@ def rsync(drive):
     else:
         logger.info('== Rsync subprocess completed')
 
+def mount(device):
+    """
+    Needed for updating or verifying a drive since it isn't mounted by partitioning subprocess
+    """
+    print "Mounting " + device
+    if 'linux' in sys.platform:
+        proc = sp.Popen(['mount', '/dev/'+device+'1', '/media/'+device])
+        print "mount return code: " + str(proc.returncode)
+    else:
+        print "Cannot MOUNT device " + device + ". Unknown OS."
+    
+def setPermissions(drive):
+    pass
+    # TODO
     # Set permissions
     # chown -R root:root sda
     # chmod -R 664 sda
@@ -226,14 +238,17 @@ def build_message(total_time):
 def clone_worker(device):
     create_log(device)
     if opts.verify:
-        print "VERIFY only"
+        print "Package VERIFY only"
+        mount(device)
         verify(device)
     else:
         if opts.update:
-            print "UPDATING the targets"
+            print "UPDATING device " + device
+            mount(device)
         else:
             partition(device)
         rsync(device)
+        setPermissions(device)
         verify(device)
 
 if __name__ == "__main__":
@@ -249,7 +264,7 @@ if __name__ == "__main__":
     for p in processes:
         p.join()
 
-    total_time = str(timedelta(seconds=time.time()-start)).split('.')[0]
+    total_time = str(timedelta(seconds=time.time()-starttime)).split('.')[0]
 
     if opts.notify:
         message = build_message(total_time)
