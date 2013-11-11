@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import envoy
 import socket
 import logging
 import smtplib
@@ -144,31 +145,47 @@ def mount(device):
         proc = sp.Popen(['mount', '/dev/'+device+'1', '/media/'+device])
         print "mount return code: " + str(proc.returncode)
     else:
-        print "Cannot MOUNT device " + device + ". Unknown OS."
+        print "Cannot MOUNT device " + device + ". Unknown OS: " + sys.platform
     
-def setPermissions(drive):
-    pass
-    # TODO
-    # Set permissions
-    # chown -R root:root sda
-    # chmod -R 664 sda
-    # chmod -R +X sda
-    # find sda -name "*.sh" | xargs chmod +x
+def set_permissions(drive):
+    if 'linux' in sys.platform:
+        p = envoy.run('chown -R root:root /media/'+drive) 
+        p = envoy.run('chmod -R 664 /media/'+drive)
+        p = envoy.run('chmod -R +X /media/'+drive)
+        p = envoy.run('find /media/'+drive+ ' -name "*.sh" | xargs chmod +x')
+    else:
+        print "Cannot set PERMISSIONS for " + device + ". Unknown OS: " + sys.platform
 
 def verify(drive):
     verify_start = time.time()
     os.chdir(VERIFY_SCRIPT_DIR)
 
-    logger.info('\n* Starting verification process --')
-    logger.info('Start time - ' + str(datetime.now()))
+    logger.info('\n* Starting verification process -- '+ str(datetime.now()))
     proc = sp.Popen(['./PackageVerifier.sh', '/media/'+drive], stdout=sp.PIPE)
     log_helper(proc)
+    # print "PackageVerifier return code: " + str(proc.returncode)
 
-    print "PackageVerifier return code: " + str(proc.returncode)
+    # Only verify disk size if created from another disk (not hcpdb)
+    if 'media' in opts.source:
+        source_size = get_size(opts.source)
+        target_size = get_size('/media/'+drive)
+
+        print "Verifying size of devices."
+        logger.info('\n* Verifying size of devices.')
+        logger.info("Source size: " + str(source_size))
+        logger.info("Target size: " + str(target_size))
+
+        # Check that SOURCE is same size as TARGET within 2 bytes.
+        if source_size < target_size-2 or source_size > target_size+2:
+            logger.warning("Source differs from target ("+drive+") by more than 2 bytes.")
+        else:
+            logger.info("Source ("+opts.source+") and target ("+drive+") are the same size.")
+
     if proc.returncode > 0:
         logger.info("++ Some packages failed verification\nSee details below")
     else:
         logger.info("== Verification process complete")
+
 
 def email(subject, recipients, sender, message):
     msg = MIMEText(message)
@@ -216,6 +233,14 @@ def get_devices():
         print "device list is empty"
         exit(-1)
 
+def get_size(drive):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(drive):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    return total_size
+
 def log_helper(process):
     while True:
         line = process.stdout.readline()
@@ -248,7 +273,7 @@ def clone_worker(device):
         else:
             partition(device)
         rsync(device)
-        setPermissions(device)
+        set_permissions(device)
         verify(device)
 
 if __name__ == "__main__":
