@@ -13,13 +13,16 @@ from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 ## TODO
-#  * Log elapsed times for each device
-#  * Verify targets are same size as source (if cloning from disk)
-#  * Pull email recipient list out as config file
+# * Log elapsed times for each device
+# * Pull email recipient list out as config file
+# * Verification that all drives passed at end:
+#   - tail cinab-sd* | grep -i error
 
 ## OPTION PARSER ##
 parser = OptionParser(usage='\n(Multiple destinations from local source with device label):'+
-                            '\npython cinabox.py -s /media/Q1-Source -t devices.list -l HCP-Q1')
+                            '\npython cinabox.py -s /media/Q1-Source -t devices.list -l HCP-Q1'+
+                            '\n(Source drive creation from hcpdb/packages using subject list):'+
+                            '\npython cinabox.py -s /data/hcpdb/packages/unzip -S Q1.txt -t devices.list -l HCP-SRC')
 parser.add_option("-s", "--source", action="store", type="string", dest="source", 
     help='Source of unzipped packages.\nE.g. /data/hcpdb/packages/unzip/')
 parser.add_option("-t", "--targets", action="store", type="string", dest="targets", 
@@ -54,7 +57,7 @@ if not (opts.device_label or opts.verify or opts.update):
 starttime = time.time()
 startdate = str(datetime.now()).split('.')[0]
 sub_count = 0
-targets = []
+target_devs = []
 SCRIPTDIR = os.getcwd()
 LOGDIR = os.path.join(SCRIPTDIR, 'logs')
 VERIFY_SCRIPT_DIR = os.getcwd()
@@ -65,7 +68,7 @@ def create_log(drive):
     global logger
     datedir = str(datetime.now()).split()[0].replace('-', '')
     sp.call(['mkdir', '-p', os.path.join(LOGDIR, datedir)])
-    logfile = os.path.join(LOGDIR, datedir +'/cinab-' + drive + '-' + \
+    logfile = os.path.join(LOGDIR, datedir, 'cinab-' + drive.replace('/','-') + '-' + \
                            socket.gethostname().split('.')[0]+'.log')
     logger = logging.getLogger('cinab')
     handler = logging.FileHandler(logfile)
@@ -96,25 +99,26 @@ def partition(drive):
         exit(-1)
         
     log_helper(proc)
-    logger.info('\n\n')
+    logger.info('\n')
 
 def rsync(drive):
-    logger.info("* Rsync process started for "+drive)
-    print "Starting rsync on " + drive
-    logger.info("\n* Cloning /dev/%s from source %s on %s" % (drive, opts.source, socket.gethostname()))
-    logger.info("== " + str(datetime.now()))
+    print "Starting rsync on /media/" + drive
+    logger.info("\n== Cloning %s from source %s on %s" % (drive, opts.source, socket.gethostname()))
+    logger.info(str(datetime.now()))
     logger.info(str(sub_count) + " subjects to rsync")
 
     if 'linux' in sys.platform or 'darwin' in sys.platform:
         # If the source directory is pulling from hcpdb/packages,
-        # change group of executing user to hcp_open
+        # change group ID of subprocess to hcp_open
         if 'hcpdb' in opts.source:
             os.setgid(60026)
+
         if opts.subject_list:
-            proc = sp.Popen(['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list, 
-                              opts.source, '/media/'+drive], stdout=sp.PIPE)
+            command = ['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list, opts.source, '/media/'+drive]
         else:
-            proc = sp.Popen(['rsync', '-avh', opts.source, '/media/'+drive], stdout=sp.PIPE)
+            command = ['rsync', '-avh', opts.source, '/media/'+drive]
+        proc = sp.Popen(command, stdout=sp.PIPE)
+
     elif 'win' in sys.platform:
         print "WINDOWS"
         # proc = sp.Popen(Some windows copy process)
@@ -122,14 +126,12 @@ def rsync(drive):
         'Unknown operating system: ' + sys.platform
         exit(-1)
         
-    logger.info('== Launching Rsync:')
-    #logger.info('sudo rsync -avhr --relative --files-from='+ opts.subject_list +' '+
-    #        opts.source+' /dev/'+drive)
+    logger.info(command)
     log_helper(proc)
 
     print "Rsync return code: " + str(proc.returncode)
     if proc.returncode > 0:
-        logger.info("++ Something happened with rsync\nReturn code "+ proc.returncode)
+        logger.error("++ Something happened with rsync\nReturn code "+ proc.returncode)
         msg = "\n++ Rsync process failed."
         #email(msg)
         exit(-1)
@@ -140,12 +142,21 @@ def mount(device):
     """
     Needed for updating or verifying a drive since it isn't mounted by partitioning subprocess
     """
-    print "Mounting " + device
     if 'linux' in sys.platform:
-        proc = sp.Popen(['mount', '/dev/'+device+'1', '/media/'+device])
+        mount_point = '/media/'+device
+
+    if os.path.ismount(mount_point):
+        print device + " already mounted"
+        return
+
+    print "Mounting /dev/" + device + " as /media/" + device
+    if 'linux' in sys.platform:
+        command = ['mount', '/dev/'+device+'1', device]
+        proc = sp.Popen(command)
         print "mount return code: " + str(proc.returncode)
     else:
         print "Cannot MOUNT device " + device + ". Unknown OS: " + sys.platform
+        sys.exit(-1)
     
 def set_permissions(drive):
     if 'linux' in sys.platform:
@@ -160,15 +171,17 @@ def verify(drive):
     verify_start = time.time()
     os.chdir(VERIFY_SCRIPT_DIR)
 
-    logger.info('\n* Starting verification process -- '+ str(datetime.now()))
+    logger.info('\n'+str(datetime.now()))
     proc = sp.Popen(['./PackageVerifier.sh', '/media/'+drive], stdout=sp.PIPE)
     log_helper(proc)
     # print "PackageVerifier return code: " + str(proc.returncode)
 
+    if not opts.source:
+        print "No source disk to verify against"        
     # Only verify disk size if created from another disk (not hcpdb)
-    if 'media' in opts.source:
+    elif 'media' in opts.source and not (opts.subject_list or opts.verify):
         source_size = get_size(opts.source)
-        target_size = get_size('/media/'+drive)
+        target_size = get_size(drive)
 
         print "Verifying size of devices."
         logger.info('\n* Verifying size of devices.')
@@ -182,7 +195,7 @@ def verify(drive):
             logger.info("Source ("+opts.source+") and target ("+drive+") are the same size.")
 
     if proc.returncode > 0:
-        logger.info("++ Some packages failed verification\nSee details below")
+        logger.warning("++ Some packages failed verification\nSee details below")
     else:
         logger.info("== Verification process complete")
 
@@ -219,23 +232,33 @@ def count_subjects():
         sub_count = os.listdir(opts.source).__len__()
         
 def get_devices():
-    try:
-        f = open(opts.targets)
-    except:
-        print "Exception opening device list file. Make sure it exists."
+    """
+    Handles either a file with a list of devices or a single dir location
+    """
+    if os.path.isfile(opts.targets):
+        try:
+            f = open(opts.targets)
+        except:
+            print "Exception opening device list file. Make sure it exists."
+            exit(-1)
+    
+        global target_devs
+        for dev in f.readlines():
+            target_devs.append(dev.strip())
+    
+        if not target_devs:
+            print "device list is empty"
+            exit(-1)
+    elif os.path.isdir(opts.targets):
+        target_devs.append(opts.targets.split('/')[-1])
+    else:
+        print "Couldn't figure out the target option."
+        print "It doesn't seem to be either a list or a directory."
         exit(-1)
 
-    global targets
-    for dev in f.readlines():
-        targets.append(dev.strip())
-
-    if not targets:
-        print "device list is empty"
-        exit(-1)
-
-def get_size(drive):
+def get_size(mount):
     total_size = 0
-    for dirpath, dirnames, filenames in os.walk(drive):
+    for dirpath, dirnames, filenames in os.walk(mount):
         for f in filenames:
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
@@ -250,7 +273,7 @@ def log_helper(process):
         logger.info(line)
 
 def build_message(total_time):
-    msg = "Cloning process complete for "+ str(targets.__len__())+" "+ \
+    msg = "Cloning process complete for "+ str(target_devs.__len__())+" "+ \
           opts.device_label + " drives on " + sys.platform + " platform."
     msg += "\n\nStarted on: "+ startdate
     msg += "\nCompleted: "+ str(datetime.now()).split('.')[0]
@@ -278,10 +301,11 @@ def clone_worker(device):
 
 if __name__ == "__main__":
     get_devices()
-    count_subjects()
+    if not opts.verify:
+        count_subjects()
     
     processes = []
-    for dev in targets:
+    for dev in target_devs:
         p = mp.Process(name=dev, target=clone_worker, args=(dev,))
         processes.append(p)
         p.start()
