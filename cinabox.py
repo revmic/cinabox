@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 ## OPTION PARSER ##
 parser = OptionParser(usage='\n(Multiple destinations from local source with device label):'+
-                            '\npython cinabox.py -s /media/Q1-Source -t device.list -l HCP-Q1'+
+                            '\npython cinabox.py -s /media/Q1-Source -t devices.list -l HCP-Q1'+
                             '\n(Source drive creation from hcpdb/packages using subject list):'+
                             '\npython cinabox.py -s /data/hcpdb/packages/unzip -S Q1.txt -t devices.list -l HCP-SRC')
 parser.add_option("-s", "--source", action="store", type="string", dest="source", 
@@ -151,7 +151,7 @@ def mount(device):
 
     print "Mounting /dev/" + device + " as /media/" + device
     if 'linux' in sys.platform:
-        command = ['mount', '/dev/'+device+'1', '/media/'+device]
+        command = ['mount', '/dev/'+device+'1', device]
         proc = sp.Popen(command)
         print "mount return code: " + str(proc.returncode)
     else:
@@ -177,7 +177,7 @@ def verify(drive):
     # print "PackageVerifier return code: " + str(proc.returncode)
 
     if not opts.source:
-        print "No source disk to verify against for size"
+        print "No source disk to verify against"        
     # Only verify disk size if created from another disk (not hcpdb)
     elif 'media' in opts.source and not (opts.subject_list or opts.verify):
         source_size = get_size(opts.source)
