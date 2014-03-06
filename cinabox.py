@@ -109,7 +109,7 @@ def rsync(drive):
 
     if 'linux' in sys.platform or 'darwin' in sys.platform:
         # If the source directory is pulling from hcpdb/packages,
-        # change group ID of subprocess to hcp_open
+        # change group ID to hcp_open
         if 'hcpdb' in opts.source:
             os.setgid(60026)
 
@@ -149,9 +149,9 @@ def mount(device):
         print device + " already mounted"
         return
 
-    print "Mounting /dev/" + device + " as /media/" + device
+    print "Mounting /dev/" + device + "1 as /media/" + device
     if 'linux' in sys.platform:
-        command = ['mount', '/dev/'+device+'1', device]
+        command = ['mount', '/dev/'+device+'1', '/media/'+device]
         proc = sp.Popen(command)
         print "mount return code: " + str(proc.returncode)
     else:
