@@ -2,6 +2,8 @@
 log*
 nohup.out
 *.list
+*.txt
+lists/
 
 # C extensions
 *.so

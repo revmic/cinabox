@@ -13,10 +13,12 @@ from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 ## TODO
-# * Log elapsed times for each device
 # * Pull email recipient list out as config file
 # * Verification that all drives passed at end:
 #   - tail cinab-sd* | grep -i error
+# * if verified, unmount and remove /media/sd* directories
+# * Check that target is > SIZE to avoid rsync on / dir
+# * Log elapsed times for each device
 
 ## OPTION PARSER ##
 parser = OptionParser(usage='\n(Multiple destinations from local source with device label):'+
@@ -114,7 +116,7 @@ def rsync(drive):
             os.setgid(60026)
 
         if opts.subject_list:
-            command = ['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list, opts.source, '/media/'+drive]
+            command = ['rsync', '-avhr', '--relative', '--delete', '--files-from='+opts.subject_list, '--exclude=*/MEG', opts.source, '/media/'+drive]
         else:
             command = ['rsync', '-avh', opts.source, '/media/'+drive]
         proc = sp.Popen(command, stdout=sp.PIPE)
@@ -149,7 +151,10 @@ def mount(device):
         print device + " already mounted"
         return
 
-    print "Mounting /dev/" + device + "1 as /media/" + device
+    if not os.path.exists(mount_point):
+        os.makedirs(mount_point)
+
+    print "Mounting /dev/%s1 as /media/%s" % (device, device)
     if 'linux' in sys.platform:
         command = ['mount', '/dev/'+device+'1', '/media/'+device]
         proc = sp.Popen(command)
@@ -160,12 +165,14 @@ def mount(device):
     
 def set_permissions(drive):
     if 'linux' in sys.platform:
+        print "Setting permissions on", drive
+        logger.info("\nSetting permissions on drive ...\n")
         p = envoy.run('chown -R root:root /media/'+drive) 
         p = envoy.run('chmod -R 664 /media/'+drive)
         p = envoy.run('chmod -R +X /media/'+drive)
         p = envoy.run('find /media/'+drive+ ' -name "*.sh" | xargs chmod +x')
     else:
-        print "Cannot set PERMISSIONS for " + device + ". Unknown OS: " + sys.platform
+        print "Cannot set PERMISSIONS for " + drive + ". Unknown OS: " + sys.platform
 
 def verify(drive):
     verify_start = time.time()
@@ -180,8 +187,10 @@ def verify(drive):
         print "No source disk to verify against"        
     # Only verify disk size if created from another disk (not hcpdb)
     elif 'media' in opts.source and not (opts.subject_list or opts.verify):
+        print "source:", opts.source
+        print "target:", os.path.join('media', drive)
         source_size = get_size(opts.source)
-        target_size = get_size(drive)
+        target_size = get_size(os.path.join('media', drive))  # Linux specific
 
         print "Verifying size of devices."
         logger.info('\n* Verifying size of devices.')
@@ -287,6 +296,10 @@ def clone_worker(device):
     create_log(device)
     if opts.verify:
         print "Package VERIFY only"
+    if opts.verify:
+        print "Package VERIFY only"
+    if opts.verify:
+        print "Package VERIFY only"
         mount(device)
         verify(device)
     else:
@@ -321,10 +334,8 @@ if __name__ == "__main__":
                       'clere@mir.wustl.edu', 'hortonw@mir.wustl.edu']
         sender = 'cinab@nrg.wustl.edu'
         subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
+
         email(subject, recipients, sender, message)
 
     print "Elapsed time: " + str(total_time)
-
-    #logger.info("== Process completed - " + str(datetime.now()))
-    #logger.info("== Total time - " + total_time)
 
