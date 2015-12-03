@@ -13,6 +13,7 @@ from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 ## TODO
+# * Option to zero drives
 # * Pull email recipient list out as config file
 # * Verification that all drives passed at end:
 #   - tail cinab-sd* | grep -i error
@@ -294,10 +295,6 @@ def build_message(total_time):
 
 def clone_worker(device):
     create_log(device)
-    if opts.verify:
-        print "Package VERIFY only"
-    if opts.verify:
-        print "Package VERIFY only"
     if opts.verify:
         print "Package VERIFY only"
         mount(device)
