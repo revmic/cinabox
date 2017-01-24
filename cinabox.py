@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import envoy
+import random
 import socket
 import logging
 import smtplib
@@ -19,6 +20,7 @@ from datetime import datetime, timedelta
 #   - tail cinab-sd* | grep -i error
 # * if verified, unmount and remove /media/sd* directories
 # * Check that target is > SIZE to avoid rsync on / dir
+#   - handling with a dedicated /media partition
 # * Log elapsed times for each device
 
 ## OPTION PARSER ##
@@ -29,7 +31,8 @@ parser = OptionParser(usage='\n(Multiple destinations from local source with dev
 parser.add_option("-s", "--source", action="store", type="string", dest="source", 
     help='Source of unzipped packages.\nE.g. /data/hcpdb/packages/unzip/')
 parser.add_option("-t", "--targets", action="store", type="string", dest="targets", 
-    help='File containing list of target drives\n(one per line), E.g. sda\nsdb\nsdc.')
+    #help='File containing list of target drives\n(one per line), E.g. sda\nsdb\nsdc.')
+    help='Hyphen separated range of JBOD bays to write to, e.g., 5-10')
 parser.add_option("-S", "--subject-list", action="store", type="string", dest="subject_list", 
     help='File containing list of subjects to copy from source.\nUsed by rsync as --files-from option.')
 parser.add_option("-l", "--device-label", action="store", type="string", dest="device_label",
@@ -53,7 +56,7 @@ if not (opts.device_label or opts.verify or opts.update):
         response = raw_input("No target device label provided. "+ \
                              "\'HCP-Cinab\' will be used.\nContinue? (y/n): ")
         if response is 'y': break
-        elif response is 'n': exit(0)
+        elif response is 'n': sys.exit(0)
         else: print "Not a proper response. Type y/n."
 
 ## GLOBALS ##
@@ -87,19 +90,22 @@ def partition(drive):
     print "Partitioning " + drive
     
     if 'linux' in sys.platform:
+        # Sleep for bay# seconds if in fact using bay#
+        if 'bay' in drive:
+            time.sleep(int(drive[3:]))
         print 'sh partlinux.sh ' + drive + ' ' + opts.device_label
         proc = sp.Popen(['sh', 'partlinux.sh', drive, opts.device_label], stdout=sp.PIPE)
     elif 'darwin' in sys.platform:
         print 'Running on Mac OS'
         # proc = sp.Popen(['sh', '/usr/local/bin/clone_cinab/partmac.sh', drive, device_label], stdout=sp.PIPE)
-        exit(-1)
+        sys.exit(-1)
     elif 'win' in sys.platform:
         print 'Running on Win'
         # proc = sp.Popen(['sh', '/usr/local/bin/clone_cinab/partwin.bin', drive, device_label], stdout=sp.PIPE)
-        exit(-1)
+        sys.exit(-1)
     else:
         print 'Unknown operating system: ' + sys.platform
-        exit(-1)
+        sys.exit(-1)
         
     log_helper(proc)
     logger.info('\n')
@@ -110,6 +116,10 @@ def rsync(drive):
     logger.info(str(datetime.now()))
     logger.info(str(sub_count) + " subjects to rsync")
 
+    if not os.path.ismount('/media/'+drive):
+        logger.info("/media/%s does not appear to be a mount. Not rsyincing." % (drive))
+        sys.exit(-1)
+
     if 'linux' in sys.platform or 'darwin' in sys.platform:
         # If the source directory is pulling from hcpdb/packages,
         # change group ID to hcp_open
@@ -117,9 +127,9 @@ def rsync(drive):
             os.setgid(60026)
 
         if opts.subject_list:
-            command = ['rsync', '-avhr', '--relative', '--delete', '--files-from='+opts.subject_list, '--exclude=*/MEG', opts.source, '/media/'+drive]
+            command = ['rsync', '-avhr', '--relative', '--files-from='+opts.subject_list, '--exclude=*/MEG', opts.source, '/media/'+drive]
         else:
-            command = ['rsync', '-avh', opts.source, '/media/'+drive]
+            command = ['rsync', '-avhL', opts.source, '/media/'+drive]
         proc = sp.Popen(command, stdout=sp.PIPE)
 
     elif 'win' in sys.platform:
@@ -127,7 +137,7 @@ def rsync(drive):
         # proc = sp.Popen(Some windows copy process)
     else:
         'Unknown operating system: ' + sys.platform
-        exit(-1)
+        sys.exit(-1)
         
     logger.info(command)
     log_helper(proc)
@@ -135,11 +145,11 @@ def rsync(drive):
     print "Rsync return code: " + str(proc.returncode)
     if proc.returncode > 0:
         logger.error("++ Something happened with rsync\nReturn code "+ proc.returncode)
-        msg = "\n++ Rsync process failed."
+        msg = "\n++ Rsync process failed at " + str(datetime.now())
         #email(msg)
-        exit(-1)
+        sys.exit(-1)
     else:
-        logger.info('== Rsync subprocess completed')
+        logger.info('== Rsync subprocess completed at ' + str(datetime.now()))
 
 def mount(device):
     """
@@ -174,6 +184,8 @@ def set_permissions(drive):
         p = envoy.run('find /media/'+drive+ ' -name "*.sh" | xargs chmod +x')
     else:
         print "Cannot set PERMISSIONS for " + drive + ". Unknown OS: " + sys.platform
+
+    print "Finished setting permissions on", drive
 
 def verify(drive):
     verify_start = time.time()
@@ -233,7 +245,7 @@ def count_subjects():
             f = open(opts.subject_list)
         except:
             print "Exception opening subject list file. Make sure it exists and you have permission."
-            exit(-1)
+            sys.exit(-1)
 
         for line in f.readlines():
             sub_count += 1
@@ -244,27 +256,36 @@ def count_subjects():
 def get_devices():
     """
     Handles either a file with a list of devices or a single dir location
+    Updated 2016-04-21 to accept a number range for JBOD bays
     """
+    global target_devs
+
     if os.path.isfile(opts.targets):
         try:
             f = open(opts.targets)
         except:
             print "Exception opening device list file. Make sure it exists."
-            exit(-1)
+            sys.exit(-1)
     
-        global target_devs
         for dev in f.readlines():
             target_devs.append(dev.strip())
     
         if not target_devs:
             print "device list is empty"
-            exit(-1)
+            sys.exit(-1)
+    elif '-' in opts.targets:
+        start = opts.targets.split('-')[0]
+        end = opts.targets.split('-')[1]
+        # TODO - check that these are integers
+        
+        for dev in range(int(start), int(end)+1):
+            target_devs.append('bay%d' % dev)
     elif os.path.isdir(opts.targets):
         target_devs.append(opts.targets.split('/')[-1])
     else:
         print "Couldn't figure out the target option."
         print "It doesn't seem to be either a list or a directory."
-        exit(-1)
+        sys.exit(-1)
 
 def get_size(mount):
     total_size = 0
@@ -302,12 +323,13 @@ def clone_worker(device):
     else:
         if opts.update:
             print "UPDATING device " + device
-            mount(device)
+            print "Should already be mounted manually"
+            #mount(device)
         else:
             partition(device)
         rsync(device)
         set_permissions(device)
-        verify(device)
+        #verify(device)
 
 if __name__ == "__main__":
     get_devices()
@@ -327,8 +349,8 @@ if __name__ == "__main__":
 
     if opts.notify:
         message = build_message(total_time)
-        recipients = ['hilemanm@mir.wustl.edu', 'moore.c@wustl.edu', 
-                      'clere@mir.wustl.edu', 'hortonw@mir.wustl.edu']
+        recipients = ['mhileman@wustl.edu', 'elamj@pcg.wustl.edu', 
+                      'clere@mir.wustl.edu', 'hortonw@wustl.edu']
         sender = 'cinab@nrg.wustl.edu'
         subject = 'CinaB Report: ' + datetime.strftime(datetime.today(), "%Y-%m-%d")
 
