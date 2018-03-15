@@ -9,7 +9,7 @@ progress () {
     watch -n 0.1 'df | egrep "bay|src" | sort -k6'
 }
 
-temp () {
+temperature () {
     echo "Checking hdd temperatures ..."
     for bay in /root/disks/dev/* ; do
         if [ -e $bay ] ; then
@@ -24,7 +24,7 @@ while getopts ":tp" opt; do
             progress
             ;;
         t)
-            temp
+            temperature
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2

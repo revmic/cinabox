@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import os
 import sys
 import time
@@ -12,6 +12,7 @@ import multiprocessing as mp
 from optparse import OptionParser
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
+from verify import verify_md5
 
 ## TODO
 # * Option to zero drives
@@ -222,6 +223,15 @@ def verify(drive):
         logger.info("== Verification process complete")
 
 
+def verify2(device):
+    verify_log = os.path.join(LOGDIR, 'verify', device + 'verify.log')
+    logger.info('\n== md5 verification started\nCheck ' + verify_log)
+    logger.info('\n'+str(datetime.now()))
+    files, size, errors = verify_md5('/media/'+device, verify_log)
+    logger.info('\n== verification complete')
+    logger.info('\n'+str(datetime.now()))
+
+
 def email(subject, recipients, sender, message):
     msg = MIMEText(message)
     msg['Subject'] = subject
@@ -319,7 +329,7 @@ def clone_worker(device):
     if opts.verify:
         print "Package VERIFY only"
         mount(device)
-        verify(device)
+        verify2(device)
     else:
         if opts.update:
             print "UPDATING device " + device
@@ -329,7 +339,8 @@ def clone_worker(device):
             partition(device)
         rsync(device)
         set_permissions(device)
-        #verify(device)
+        verify2(device)
+
 
 if __name__ == "__main__":
     get_devices()
